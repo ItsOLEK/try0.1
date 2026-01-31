@@ -3,198 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد ختم القرآن الكريم</title>
+    <title>مساعد ختم القرآن - خطة رمضان</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
+            background-color: #f0f4f8;
         }
         .quran-font {
             font-family: 'Amiri', serif;
         }
-        .card-active {
-            border: 2px solid #059669;
-            background-color: #ecfdf5;
+        .day-card {
+            transition: all 0.3s ease;
+        }
+        .day-card.completed {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .prayer-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background-color: #e2e8f0;
+            margin-bottom: 4px;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="text-gray-800">
 
-    <!-- Navigation -->
-    <nav class="bg-emerald-700 text-white p-4 shadow-lg sticky top-0 z-50">
+    <!-- Header -->
+    <nav class="bg-emerald-800 text-white p-6 shadow-xl sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold quran-font">📖 رفيق الختمة</h1>
-            <div id="date-display" class="text-sm"></div>
+            <div>
+                <h1 class="text-2xl font-bold quran-font">🌙 ختمة رمضان (604 صفحة)</h1>
+                <p class="text-emerald-100 text-xs mt-1">خطة الـ 29 يوماً المخصصة</p>
+            </div>
+            <div id="overall-progress" class="text-right">
+                <span class="block text-xs uppercase opacity-75">الإنجاز الكلي</span>
+                <span id="total-percent" class="text-xl font-bold">0%</span>
+            </div>
+        </div>
+        <div class="w-full bg-emerald-900 h-2 mt-4 rounded-full overflow-hidden">
+            <div id="total-progress-bar" class="bg-yellow-400 h-full transition-all duration-700" style="width: 0%"></div>
         </div>
     </nav>
 
-    <main class="container mx-auto px-4 py-8 max-w-4xl">
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
         
-        <!-- Welcome & Goal Section -->
-        <section class="bg-white rounded-2xl p-6 shadow-sm mb-8 text-center border-t-4 border-emerald-500">
-            <h2 class="text-xl font-bold mb-2">مرحباً بك في رحلة الختم</h2>
-            <p class="text-gray-600 mb-6 italic text-sm">"خطة الـ 29 يوماً - 604 صفحة"</p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="p-4 bg-emerald-50 rounded-xl">
-                    <span class="block text-xs text-gray-500 mb-1">الأيام المنجزة</span>
-                    <span id="completed-count" class="text-2xl font-bold text-emerald-700">0</span>
-                </div>
-                <div class="p-4 bg-emerald-50 rounded-xl">
-                    <span class="block text-xs text-gray-500 mb-1">النسبة المئوية</span>
-                    <span id="percentage-text" class="text-2xl font-bold text-emerald-700">0%</span>
-                </div>
-                <div class="p-4 bg-emerald-50 rounded-xl">
-                    <span class="block text-xs text-gray-500 mb-1">المتبقي</span>
-                    <span id="remaining-count" class="text-2xl font-bold text-emerald-700">29</span>
-                </div>
+        <!-- Summary Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-blue-500">
+                <span class="text-gray-500 text-sm">أيام منجزة</span>
+                <div class="text-3xl font-bold text-blue-600"><span id="days-done">0</span> / 29</div>
             </div>
-
-            <!-- Progress Bar -->
-            <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                <div id="main-progress-bar" class="bg-emerald-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-emerald-500">
+                <span class="text-gray-500 text-sm">صفحات مقروءة</span>
+                <div class="text-3xl font-bold text-emerald-600"><span id="pages-done">0</span> / 604</div>
             </div>
-        </section>
-
-        <!-- Days Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="days-container">
-            <!-- سيتم توليد الأيام بواسطة الجافا سكريبت -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-b-4 border-yellow-500">
+                <span class="text-gray-500 text-sm">المتبقي للختم</span>
+                <div class="text-3xl font-bold text-yellow-600"><span id="pages-left">604</span> صفحة</div>
+            </div>
         </div>
 
-        <!-- Motivational Quote -->
-        <div id="motivation-box" class="mt-8 p-6 bg-emerald-900 text-white rounded-2xl text-center hidden transition-all duration-300">
-            <p id="motivation-text" class="text-lg quran-font"></p>
+        <!-- Schedule Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="days-container">
+            <!-- Generated by JavaScript -->
         </div>
 
     </main>
 
-    <footer class="text-center py-8 text-gray-400 text-sm">
-        <p class="mb-2">صدقة جارية - صُنع لخدمة كتاب الله</p>
-        <button onclick="resetAll()" class="text-red-300 hover:text-red-500 underline text-xs">إعادة ضبط التقدم</button>
+    <footer class="text-center py-10 text-gray-500 text-sm">
+        <p class="mb-2">تقبل الله منا ومنكم صالح الأعمال</p>
+        <button onclick="resetProgress()" class="text-red-400 hover:text-red-600 underline">إعادة ضبط التقدم</button>
     </footer>
 
     <script>
         const daysContainer = document.getElementById('days-container');
-        const totalDays = 29;
-        let completedDays = JSON.parse(localStorage.getItem('quran_progress_days')) || [];
-
-        // بيانات توزيع الصفحات بناءً على طلبك
+        let completedDays = JSON.parse(localStorage.getItem('ramadan_khatma_progress')) || [];
+        
+        // بناء بيانات الورد اليومي
         const schedule = [];
         let currentPage = 1;
 
-        for (let d = 1; d <= 29; d++) {
-            let dayPrayers = [];
-            if (d <= 28) {
-                dayPrayers = [
-                    { name: 'الفجر', p: 5 },
-                    { name: 'الظهر', p: 4 },
-                    { name: 'العصر', p: 4 },
-                    { name: 'المغرب', p: 4 },
-                    { name: 'العشاء', p: 4 }
+        for (let day = 1; day <= 29; day++) {
+            let dayData = { day: day, prayers: [] };
+            
+            if (day <= 28) {
+                // الفجر 5 ص، الباقي 4 ص (المجموع 21 صفحة يومياً)
+                dayData.prayers = [
+                    { name: 'الفجر', pages: 5 },
+                    { name: 'الظهر', pages: 4 },
+                    { name: 'العصر', pages: 4 },
+                    { name: 'المغرب', pages: 4 },
+                    { name: 'العشاء', pages: 4 }
                 ];
             } else {
-                dayPrayers = [
-                    { name: 'الفجر', p: 5 },
-                    { name: 'الظهر', p: 4 },
-                    { name: 'العصر', p: 4 },
-                    { name: 'المغرب', p: 3 }
+                // اليوم 29: الفجر 5، ظهر 4، عصر 4، مغرب 3 (المجموع 16 صفحة)
+                // المجموع الكلي: (28 * 21) + 16 = 588 + 16 = 604 صفحة بالضبط
+                dayData.prayers = [
+                    { name: 'الفجر', pages: 5 },
+                    { name: 'الظهر', pages: 4 },
+                    { name: 'العصر', pages: 4 },
+                    { name: 'المغرب', pages: 3 }
                 ];
             }
-
-            let details = dayPrayers.map(pr => {
+            
+            // تحديد أرقام الصفحات لكل صلاة
+            dayData.totalDayPages = 0;
+            dayData.details = dayData.prayers.map(p => {
                 const start = currentPage;
-                const end = currentPage + pr.p - 1;
+                const end = currentPage + p.pages - 1;
                 currentPage = end + 1;
-                return { name: pr.name, range: `${start}-${end}` };
+                dayData.totalDayPages += p.pages;
+                return { ...p, range: `${start} - ${end}` };
             });
-
-            schedule.push({ day: d, details: details });
+            
+            schedule.push(dayData);
         }
 
-        function init() {
-            renderDays();
-            updateStats();
-            document.getElementById('date-display').innerText = new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        }
-
-        function renderDays() {
+        function render() {
             daysContainer.innerHTML = '';
+            let totalPagesRead = 0;
+
             schedule.forEach(item => {
-                const isCompleted = completedDays.includes(item.day);
+                const isDone = completedDays.includes(item.day);
+                if(isDone) totalPagesRead += item.totalDayPages;
+
                 const card = document.createElement('div');
-                card.className = `cursor-pointer p-5 rounded-xl border transition-all flex flex-col space-y-3 ${isCompleted ? 'card-active shadow-md' : 'bg-white hover:border-emerald-300 border-gray-100 shadow-sm'}`;
-                card.onclick = () => toggleDay(item.day);
+                card.className = `day-card bg-white rounded-2xl p-5 shadow-sm border-2 transition-all ${isDone ? 'completed' : 'border-transparent'}`;
                 
-                let prayersList = item.details.map(p => `
-                    <div class="flex justify-between text-[11px] border-b border-gray-50 pb-1">
-                        <span class="font-bold text-gray-500">${p.name}</span>
-                        <span class="text-emerald-700 font-mono">ص ${p.range}</span>
+                let prayersHtml = item.details.map(p => `
+                    <div class="flex justify-between items-center mb-2 text-sm border-b border-gray-50 pb-1">
+                        <span class="font-bold text-gray-600">${p.name}</span>
+                        <span class="bg-gray-100 px-2 py-0.5 rounded text-xs text-emerald-800 font-mono">ص ${p.range}</span>
                     </div>
                 `).join('');
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-start mb-4">
                         <div>
-                            <span class="text-[10px] uppercase text-gray-400">اليوم</span>
-                            <div class="text-xl font-black ${isCompleted ? 'text-emerald-700' : 'text-gray-700'}">${item.day}</div>
+                            <span class="text-xs text-emerald-600 font-bold">اليوم</span>
+                            <h3 class="text-2xl font-black">${item.day}</h3>
                         </div>
-                        <div class="w-6 h-6 rounded-full border flex items-center justify-center ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-200 text-transparent'}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
+                        <input type="checkbox" ${isDone ? 'checked' : ''} 
+                               onchange="toggleDay(${item.day})"
+                               class="w-6 h-6 accent-emerald-600 cursor-pointer">
                     </div>
                     <div class="space-y-1">
-                        ${prayersList}
+                        ${prayersHtml}
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-dashed text-center text-xs text-gray-400">
+                        مجموع صفحات اليوم: ${item.totalDayPages}
                     </div>
                 `;
                 daysContainer.appendChild(card);
             });
+
+            // تحديث الإحصائيات
+            document.getElementById('days-done').innerText = completedDays.length;
+            document.getElementById('pages-done').innerText = totalPagesRead;
+            document.getElementById('pages-left').innerText = 604 - totalPagesRead;
+            const totalPercent = Math.round((totalPagesRead / 604) * 100);
+            document.getElementById('total-percent').innerText = totalPercent + '%';
+            document.getElementById('total-progress-bar').style.width = totalPercent + '%';
         }
 
-        function toggleDay(dayNumber) {
-            if (completedDays.includes(dayNumber)) {
-                completedDays = completedDays.filter(d => d !== dayNumber);
+        function toggleDay(day) {
+            if (completedDays.includes(day)) {
+                completedDays = completedDays.filter(d => d !== day);
             } else {
-                completedDays.push(dayNumber);
-                showMotivation();
+                completedDays.push(day);
             }
-            localStorage.setItem('quran_progress_days', JSON.stringify(completedDays));
-            renderDays();
-            updateStats();
+            localStorage.setItem('ramadan_khatma_progress', JSON.stringify(completedDays));
+            render();
         }
 
-        function updateStats() {
-            const count = completedDays.length;
-            const percentage = Math.round((count / totalDays) * 100);
-            
-            document.getElementById('completed-count').innerText = count;
-            document.getElementById('remaining-count').innerText = totalDays - count;
-            document.getElementById('percentage-text').innerText = percentage + '%';
-            document.getElementById('main-progress-bar').style.width = percentage + '%';
-        }
-
-        function showMotivation() {
-            const quotes = ["مبارك! تقبل الله طاعتك.", "خطوة رائعة نحو الختم.", "هنيئاً لك صحبة القرآن.", "اللهم ثبتنا على طاعتك."];
-            const motivationBox = document.getElementById('motivation-box');
-            const motivationText = document.getElementById('motivation-text');
-            motivationText.innerText = quotes[Math.floor(Math.random() * quotes.length)];
-            motivationBox.classList.remove('hidden');
-            setTimeout(() => motivationBox.classList.add('hidden'), 3000);
-        }
-
-        function resetAll() {
-            if(confirm('هل تريد مسح السجل والبدء من جديد؟')) {
+        function resetProgress() {
+            if(confirm('هل أنت متأكد من مسح جميع سجلات القراءة؟')) {
                 completedDays = [];
-                localStorage.removeItem('quran_progress_days');
-                renderDays();
-                updateStats();
+                localStorage.removeItem('ramadan_khatma_progress');
+                render();
             }
         }
 
-        window.onload = init;
+        window.onload = render;
     </script>
 </body>
 </html>
