@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ختمة رمضان | الواجهة الفاخرة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #064e3b;
+            --accent: #d4af37;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: radial-gradient(circle at top right, #065f46, #022c22);
+            min-height: 100vh;
+            color: white;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+        }
+        .prayer-btn {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .prayer-btn.active {
+            background: var(--accent);
+            color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            transform: translateY(-5px);
+        }
+        .quran-pattern {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/islamic-art.png');
+            opacity: 0.05;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="quran-pattern"></div>
+
+    <div id="setup" class="fixed inset-0 z-50 flex items-center justify-center bg-[#022c22] p-4 hidden">
+        <div class="glass p-8 max-w-md w-full text-center border-t-4 border-[#d4af37]">
+            <h2 class="text-3xl font-black mb-2 text-[#d4af37]">مرحباً بك</h2>
+            <p class="text-emerald-100/70 mb-6">أنشئ ملفك للبدء في تتبع الختمة</p>
+            <div class="space-y-4">
+                <input type="text" id="name" placeholder="الاسم الكريم" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-[#d4af37]">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="age" placeholder="العمر" class="bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-[#d4af37]">
+                    <select id="gender" class="bg-[#064e3b] border border-white/10 p-4 rounded-xl outline-none">
+                        <option value="ذكر">ذكر</option>
+                        <option value="أنثى">أنثى</option>
+                    </select>
+                </div>
+                <button onclick="initApp()" class="w-full bg-[#d4af37] text-[#022c22] font-black py-4 rounded-xl hover:scale-105 transition">ابدأ الختمة الآن</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="max-w-5xl mx-auto relative z-10">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
+            <div>
+                <h1 id="userTitle" class="text-3xl md:text-5xl font-black text-white mb-2">تقبل الله طاعتك</h1>
+                <p id="dateMsg" class="text-emerald-300 font-medium">رمضان مبارك .. استعن بالله ولا تعجز</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="confirmReset()" class="glass p-4 hover:bg-red-500/20 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div class="lg:col-span-2 glass p-8 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <svg width="120" height="120" viewBox="0 0 24 24" fill="white"><path d="M19 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 14.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+                </div>
+                <p class="text-emerald-300 uppercase tracking-widest text-sm mb-4">تقدمك الإجمالي</p>
+                <div class="flex items-baseline gap-4 mb-6">
+                    <span id="perc" class="text-7xl font-black text-[#d4af37]">0%</span>
+                    <span id="pages" class="text-xl text-emerald-100/50">0 / 604 صفحة</span>
+                </div>
+                <div class="w-full bg-white/10 h-3 rounded-full overflow-hidden">
+                    <div id="bar" class="h-full bg-gradient-to-r from-[#d4af37] to-yellow-200 transition-all duration-1000" style="width: 0%"></div>
+                </div>
+                <p id="statusMsg" class="mt-6 text-emerald-200 font-light italic">"وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا"</p>
+            </div>
+
+            <div class="glass p-8 flex flex-col justify-center border-l-4 border-[#d4af37]">
+                <h3 class="text-[#d4af37] font-bold mb-4">الوقف التقني</h3>
+                <p class="text-sm text-emerald-100/70 leading-relaxed">
+                    هذه المبادرة وقف تقني خيري. بياناتك مُشفرة ومحفوظة محلياً فقط. دعمك يساهم في تطوير المزيد من الأدوات الإسلامية.
+                </p>
+                <button class="mt-6 bg-white/5 hover:bg-white/10 border border-white/10 py-3 rounded-xl transition text-sm">تفاصيل المبادرة</button>
+            </div>
+        </div>
+
+        <div class="glass p-4 md:p-8">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold">تتبع ورد اليوم</h2>
+                <button onclick="allDone()" class="text-sm bg-emerald-500/20 text-emerald-300 px-6 py-2 rounded-full border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition">أتممت اليوم كاملاً</button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                <button onclick="tap(0)" id="p0" class="prayer-btn glass p-6 flex flex-col items-center gap-3">
+                    <span class="text-3xl">🌄</span>
+                    <span class="font-bold">الفجر</span>
+                    <span class="text-[10px] opacity-60">5 صفحات</span>
+                </button>
+                <button onclick="tap(1)" id="p1" class="prayer-btn glass p-6 flex flex-col items-center gap-3">
+                    <span class="text-3xl">☀️</span>
+                    <span class="font-bold">الظهر</span>
+                    <span class="text-[10px] opacity-60">4 صفحات</span>
+                </button>
+                <button onclick="tap(2)" id="p2" class="prayer-btn glass p-6 flex flex-col items-center gap-3">
+                    <span class="text-3xl">🌇</span>
+                    <span class="font-bold">العصر</span>
+                    <span class="text-[10px] opacity-60">4 صفحات</span>
+                </button>
+                <button onclick="tap(3)" id="p3" class="prayer-btn glass p-6 flex flex-col items-center gap-3">
+                    <span class="text-3xl">🌅</span>
+                    <span class="font-bold">المغرب</span>
+                    <span class="text-[10px] opacity-60">4 صفحات</span>
+                </button>
+                <button onclick="tap(4)" id="p4" class="prayer-btn glass p-6 flex flex-col items-center gap-3">
+                    <span class="text-3xl">🌃</span>
+                    <span class="font-bold">العشاء</span>
+                    <span class="text-[10px] opacity-60">4 صفحات</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 hidden">
+        <div class="glass p-8 max-w-sm w-full text-center border-t-4 border-red-500">
+            <h3 class="text-xl font-bold mb-4">هل تود البدء من جديد؟</h3>
+            <p class="text-white/60 mb-8 text-sm">هذا الإجراء سيحذف كافة سجلات القراءة الحالية ولا يمكن التراجع عنه.</p>
+            <div class="flex gap-4">
+                <button onclick="reset()" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold">تأكيد الحذف</button>
+                <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" class="flex-1 bg-white/10 py-3 rounded-xl">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db = {
+            user: null,
+            prog: Array(30).fill(null).map(() => [false, false, false, false, false]),
+            current: 0
+        };
+
+        window.onload = () => {
+            const data = localStorage.getItem('khatma_glass_pro');
+            if(data) {
+                db = JSON.parse(data);
+                update();
+            } else {
+                document.getElementById('setup').classList.remove('hidden');
+            }
+        };
+
+        function initApp() {
+            const n = document.getElementById('name').value;
+            if(!n) return alert('أدخل اسمك الكريم');
+            db.user = { name: n };
+            save();
+            document.getElementById('setup').classList.add('hidden');
+            update();
+        }
+
+        function tap(i) {
+            db.prog[db.current][i] = !db.prog[db.current][i];
+            save();
+            update();
+        }
+
+        function allDone() {
+            db.prog[db.current] = [true, true, true, true, true];
+            save();
+            update();
+        }
+
+        function update() {
+            if(!db.user) return;
+            document.getElementById('userTitle').innerText = `تقبل الله طاعتك، ${db.user.name}`;
+            
+            let total = 0;
+            db.prog.forEach(d => {
+                if(d[0]) total += 5;
+                if(d[1]) total += 4;
+                if(d[2]) total += 4;
+                if(d[3]) total += 4;
+                if(d[4]) total += 4;
+            });
+
+            const p = ((total / 604) * 100).toFixed(1);
+            document.getElementById('perc').innerText = p + '%';
+            document.getElementById('bar').style.width = p + '%';
+            document.getElementById('pages').innerText = `${total} / 604 صفحة`;
+
+            db.prog[db.current].forEach((done, i) => {
+                const b = document.getElementById(`p${i}`);
+                done ? b.classList.add('active') : b.classList.remove('active');
+            });
+
+            if(total >= 604) confetti({ particleCount: 200, spread: 80, colors: ['#d4af37', '#ffffff'] });
+        }
+
+        function save() { localStorage.setItem('khatma_glass_pro', JSON.stringify(db)); }
+        function confirmReset() { document.getElementById('confirm').classList.remove('hidden'); }
+        function reset() { localStorage.clear(); location.reload(); }
+    </script>
+</body>
+</html>
